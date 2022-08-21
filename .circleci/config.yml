@@ -15,7 +15,11 @@ jobs:
             cd frontend
             npm install
             npm run build
-          
+          environment:
+            API_URL: http://localhost:3030
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   build-backend:
     docker:
@@ -30,6 +34,11 @@ jobs:
             cd backend
             npm install
             npm run build
+          environment:
+            API_URL: http://localhost:3030
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
 workflows:
   default:
