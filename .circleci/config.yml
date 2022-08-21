@@ -31,8 +31,8 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            cd frontend
-            npm install
+            cd backend & \
+            npm i && 
             npm run build
           environment:
             API_URL: http://localhost:3030
