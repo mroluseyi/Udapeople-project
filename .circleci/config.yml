@@ -82,10 +82,7 @@ jobs:
             npm install 
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-      - slack/notify:
-        channel: ZIGLAR32
-        event: pass
-        template: basic_fail_1
+      
 
   scan-backend:
     docker:
