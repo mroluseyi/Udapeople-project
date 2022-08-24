@@ -126,7 +126,7 @@ jobs:
       -run:
          name: set default region
          command: |
-           aws configure set default.region us-east-1      
+            aws configure set default.region us-east-1      
       - run:
           name: Ensure back-end infrastructure exists
           command: |
