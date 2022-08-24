@@ -207,4 +207,8 @@ workflows:
           filters:
             branches:
               only: [master]    
-          
+      - configure-infrastructure:
+          filters:
+            branches:
+              only: [master]
+          requires: [deploy-infrastructure]    
