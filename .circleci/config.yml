@@ -149,6 +149,43 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            ["95:dc:0e:85:52:70:36:6c:17:54:66:9e:7b:b0:c5:2a"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --no-cache tar
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install \
+                awscli \
+            && rm -rf /var/cache/apk/*
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+          environment:
+            ANSIBLE_HOST_KEY_CHECKING: false
+      - run:
+          name: Install prometheus node_exporter
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt add-node-exporter.yml
+      - destroy-environment    
            
                            
 
