@@ -249,5 +249,5 @@ workflows:
             branches:
               only: [master]
           requires: [deploy-infrastructure]  
-      - run-migrations:
-          requires: [configure-infrastructure]      
+      #- run-migrations:
+          #requires: [configure-infrastructure]      
