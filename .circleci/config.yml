@@ -130,7 +130,7 @@ jobs:
             npm audit --audit-level=critical   
 
   
-  -deploy-infrastructure:
+  deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
     steps:
