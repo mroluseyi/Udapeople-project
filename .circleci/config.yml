@@ -15,6 +15,21 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
 
+  revert-migrations:
+    description: Revert the last migration
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            export SUCCESS=$(curl --insecure https://kvdb.io/${KVDB_BUCKET_ID}/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            echo $SUCCESS
+            if (( $SUCCESS == 1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
             
 jobs:
   build-frontend:
@@ -214,6 +229,41 @@ jobs:
             fi
 
       - destroy-environment
+      - revert-migrations
+
+  deploy-frontend:
+    docker:
+      - image: python:3.10.5-alpine3.16
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install Dependencies
+          command: |
+            apk add --update ansible tar gzip curl aws-cli nodejs npm
+            apk add --update npm
+      - run:
+          name: Get Backend Url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy Frontend Object
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment  
+      - revert-migrations  
            
            
                            
