@@ -245,13 +245,14 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [frontend-build]
       - run:
-          name: Install Dependencies
+          name: Install dependencies
           command: |
-            apk add --update ansible tar gzip curl aws-cli nodejs npm
-            apk add --update npm
+            apk add --update tar gzip nodejs npm ansible curl aws-cli
       - run:
-          name: Get Backend Url
+          name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -259,18 +260,18 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo "API_URL=http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
-          name: Deploy Frontend Object
+          name: Deploy frontend objects
           command: |
             cd frontend
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment  
-      - revert-migrations  
+      - destroy-environment
+      - revert-migrations
 
   deploy-backend:
     docker:
@@ -278,36 +279,33 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ['95:dc:0e:85:52:70:36:6c:17:54:66:9e:7b:b0:c5:2a']
+          fingerprints: ['55:53:06:91:47:d7:3c:6f:05:47:4c:28:d8:65:17:f4']
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
-          name: Install Dependencies
+          name: Install dependencies
           command: |
-            apk add --update ansible tar gzip curl aws-cli nodejs npm
-            apk add --update npm
+            apk add --update tar gzip nodejs npm ansible curl aws-cli
       - run:
-          name: Deploy Backend
+          name: Compress backend
           command: |
             cd backend
-            npm i 
             npm run build
+            tar -czf artifact.tar.gz dist/* package*
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
-            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
       - run:
-          name: Deploy Backend
+          name: Deploy backend
           command: |
             export TYPEORM_MIGRATIONS_DIR=./migrations
             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_MIGRATIONS=./migrations/*.ts
             cd .circleci/ansible
-            echo "Contents of the inventory.txt is ---"
-            cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
-      - revert-migrations   
+      - revert-migrations 
 
   smoke-test:
     docker:
