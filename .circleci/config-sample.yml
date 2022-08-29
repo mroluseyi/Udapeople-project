@@ -41,6 +41,7 @@ deploy-infrastructure:
             - project/.circleci/ansible/inventory.txt
 
       - destroy-environment
+      
 deploy-frontend:
     docker:
       - image: python:3.10.5-alpine3.16
