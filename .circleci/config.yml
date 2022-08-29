@@ -215,7 +215,7 @@ jobs:
             sudo ./aws/install
       - attach_workspace:
           at: ~/
-      - run:
+      - run: 
           name: Run Migrations
           command: |
             cd backend
@@ -369,15 +369,15 @@ workflows:
           filters:
             branches:
               only: [master]    
-      #- configure-infrastructure:
-          #filters:
-            #branches:
-              #only: [master]
-          #requires: [deploy-infrastructure]  
-      #- run-migrations:
-          #requires: [configure-infrastructure]      
-      #- deploy-frontend:
-          #requires: [run-migrations]    
+      - configure-infrastructure:
+          filters:
+            branches:
+              only: [master]
+          requires: [deploy-infrastructure]  
+      - run-migrations:
+          requires: [configure-infrastructure]      
+      - deploy-frontend:
+          requires: [run-migrations]     
       #- deploy-backend:
           #requires: [run-migrations]  
       #- smoke-test:
