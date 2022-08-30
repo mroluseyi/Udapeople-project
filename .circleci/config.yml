@@ -316,11 +316,17 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Dependencies
+          name: Install dependencies
           command: |
-            apk add --update --no-cache  curl aws-cli tar gzip nodejs npm
-      - attach_workspace:
-          at: ~/
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install \
+                awscli \
+            && rm -rf /var/cache/apk/*
+            apk add --update npm
+            apk add curl
       - run:
           name: Backend smoke test.
           command: |
