@@ -315,8 +315,12 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
+      - run:
+          name: Install Dependencies
+          command: |
+            apk add --update --no-cache  curl aws-cli tar gzip nodejs npm
+      - attach_workspace:
+          at: ~/
       - run:
           name: Backend smoke test.
           command: |
