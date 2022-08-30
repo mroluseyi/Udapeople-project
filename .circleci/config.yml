@@ -330,9 +330,9 @@ jobs:
                   --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                   --query 'Reservations[*].Instances[*].PublicIpAddress' \
                   --output text)        
-            echo BACKEND_URL: http://${BACKEND_IP}:3030/api/status
+            echo BACKEND_URL: http://${BACKEND_IP}:3030
               if 
-                 curl -s http://${BACKEND_IP}:3030/api/status | grep "ok"
+                 curl -s http://${BACKEND_IP}:3030 | grep "ok"
                then
                  exit 0
               else
