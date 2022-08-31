@@ -1,3 +1,10 @@
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
 
 - name: Extract files
   become: true
@@ -12,3 +19,4 @@
     npm install
     pm2 stop default
     sudo pm2 start npm -- start
+    
