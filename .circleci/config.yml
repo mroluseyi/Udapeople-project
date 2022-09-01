@@ -341,6 +341,19 @@ jobs:
         - run:
             name: Backend smoke test.
             command: |
+|
+              echo "TYPEORM_CONNECTION=postgres" >> .env
+              echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+              echo "TYPEORM_ENTITIES=./src/modules/domain/*/.entity.ts" >> .env
+              echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+              # Use these values for the local PG database from the Docker Compose file
+              echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
+              echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+              echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+              echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+              echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+              cat .env
+
               export BACKEND_IP=$(aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
