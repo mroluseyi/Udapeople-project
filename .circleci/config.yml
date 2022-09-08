@@ -296,7 +296,7 @@ jobs:
             touch .env
             echo "TYPEORM_CONNECTION=postgres" >> .env
             echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
-            echo "TYPEORM_ENTITIES=./src/modules/domain/*/.entity.ts" >> .env
+            echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> .env
             echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
             # Use these values for the local PG database from the Docker Compose file
             echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
